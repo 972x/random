@@ -1,5 +1,7 @@
 package dev.doraemon.entity;
 
+import dev.doraemon.entity.ai.HideFromPlayerGoal;
+import dev.doraemon.entity.ai.ShadowPlayerGoal;
 import dev.doraemon.item.ModItems;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.FollowOwnerGoal;
@@ -46,12 +48,17 @@ public class DoraemonEntity extends TameableEntity {
 
 	@Override
 	protected void initGoals() {
+		// Priorities: swimming for survival always wins; hiding beats shadowing
+		// beats sitting/following (which only ever activate once tamed, per
+		// their own internal checks); wander/look are idle fallbacks.
 		this.goalSelector.add(1, new SwimGoal(this));
-		this.goalSelector.add(2, new SitGoal(this));
-		this.goalSelector.add(3, new FollowOwnerGoal(this, 1.0, 10.0f, 2.0f, false));
-		this.goalSelector.add(4, new WanderAroundFarGoal(this, 0.8));
-		this.goalSelector.add(5, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
-		this.goalSelector.add(6, new LookAroundGoal(this));
+		this.goalSelector.add(2, new HideFromPlayerGoal(this));
+		this.goalSelector.add(3, new SitGoal(this));
+		this.goalSelector.add(4, new FollowOwnerGoal(this, 1.0, 10.0f, 2.0f, false));
+		this.goalSelector.add(5, new ShadowPlayerGoal(this));
+		this.goalSelector.add(6, new WanderAroundFarGoal(this, 0.8));
+		this.goalSelector.add(7, new LookAtEntityGoal(this, PlayerEntity.class, 8.0f));
+		this.goalSelector.add(8, new LookAroundGoal(this));
 	}
 
 	@Override
@@ -63,19 +70,16 @@ public class DoraemonEntity extends TameableEntity {
 				if (!player.getAbilities().creativeMode) {
 					stack.decrement(1);
 				}
-				if (this.random.nextInt(3) == 0) {
-					this.setOwner(player);
-					this.setTamed(true);
-					this.navigation.stop();
-					this.setTarget(null);
-					this.setSitting(false);
-					this.setHealth(this.getMaxHealth());
-					this.getWorld().sendEntityStatus(this, (byte) 7);
-					this.playSound(SoundEvents.ENTITY_CAT_PURR, 1.0f, 1.0f);
-				} else {
-					this.getWorld().sendEntityStatus(this, (byte) 6);
-					this.playSound(SoundEvents.ENTITY_CAT_HISS, 1.0f, 1.0f);
-				}
+				// Sneaking close enough to feed him at all is the real challenge
+				// (see HideFromPlayerGoal) -- once he lets you, he always accepts.
+				this.setOwner(player);
+				this.setTamed(true);
+				this.navigation.stop();
+				this.setTarget(null);
+				this.setSitting(false);
+				this.setHealth(this.getMaxHealth());
+				this.getWorld().sendEntityStatus(this, (byte) 7);
+				this.playSound(SoundEvents.ENTITY_CAT_PURR, 1.0f, 1.0f);
 			}
 			return ActionResult.SUCCESS;
 		}

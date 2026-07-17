@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"category": "misc",
+	"ingredients": [
+		{ "item": "minecraft:wheat" },
+		{ "item": "minecraft:wheat" },
+		{ "item": "minecraft:sugar" },
+		{ "item": "minecraft:beetroot" }
+	],
+	"result": {
+		"id": "doraemon:dorayaki",
+		"count": 2
+	}
+}
