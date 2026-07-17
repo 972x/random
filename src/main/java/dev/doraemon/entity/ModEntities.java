@@ -15,7 +15,7 @@ public final class ModEntities {
 			Registries.ENTITY_TYPE,
 			Identifier.of(DoraemonMod.MOD_ID, "doraemon"),
 			FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, DoraemonEntity::new)
-					.dimensions(EntityDimensions.fixed(0.9f, 1.3f))
+					.dimensions(EntityDimensions.fixed(0.9f, 1.4f))
 					.trackRangeBlocks(10)
 					.build());
 
