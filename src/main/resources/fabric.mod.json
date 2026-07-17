@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "doraemon",
+	"version": "${version}",
+	"name": "Doraemon Companion",
+	"description": "An unofficial fan-made companion mob inspired by Doraemon. Tame him with a Dorayaki, and he'll follow you around and answer questions about the Minecraft world in chat. Not affiliated with or endorsed by the Doraemon franchise; personal/non-commercial fan project.",
+	"authors": [
+		"Olga"
+	],
+	"contact": {},
+	"license": "MIT",
+	"icon": "assets/doraemon/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.doraemon.DoraemonMod"
+		],
+		"client": [
+			"dev.doraemon.client.DoraemonModClient"
+		]
+	},
+	"mixins": [],
+	"depends": {
+		"fabricloader": ">=0.16.9",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
