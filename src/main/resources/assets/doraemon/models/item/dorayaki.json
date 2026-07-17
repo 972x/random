@@ -1,6 +1,213 @@
 {
-	"parent": "minecraft:item/generated",
+	"parent": "minecraft:block/block",
 	"textures": {
-		"layer0": "doraemon:item/dorayaki"
-	}
+		"particle": "doraemon:item/dorayaki",
+		"texture": "doraemon:item/dorayaki"
+	},
+	"elements": [
+		{
+			"from": [
+				2,
+				2,
+				2
+			],
+			"to": [
+				14,
+				5,
+				14
+			],
+			"faces": {
+				"up": {
+					"uv": [
+						12,
+						0,
+						24,
+						12
+					],
+					"texture": "#texture"
+				},
+				"down": {
+					"uv": [
+						24,
+						0,
+						36,
+						12
+					],
+					"texture": "#texture"
+				},
+				"east": {
+					"uv": [
+						0,
+						12,
+						12,
+						15
+					],
+					"texture": "#texture"
+				},
+				"south": {
+					"uv": [
+						12,
+						12,
+						24,
+						15
+					],
+					"texture": "#texture"
+				},
+				"west": {
+					"uv": [
+						24,
+						12,
+						36,
+						15
+					],
+					"texture": "#texture"
+				},
+				"north": {
+					"uv": [
+						36,
+						12,
+						48,
+						15
+					],
+					"texture": "#texture"
+				}
+			}
+		},
+		{
+			"from": [
+				2,
+				5,
+				2
+			],
+			"to": [
+				14,
+				8,
+				14
+			],
+			"faces": {
+				"up": {
+					"uv": [
+						12,
+						15,
+						24,
+						27
+					],
+					"texture": "#texture"
+				},
+				"down": {
+					"uv": [
+						24,
+						15,
+						36,
+						27
+					],
+					"texture": "#texture"
+				},
+				"east": {
+					"uv": [
+						0,
+						27,
+						12,
+						30
+					],
+					"texture": "#texture"
+				},
+				"south": {
+					"uv": [
+						12,
+						27,
+						24,
+						30
+					],
+					"texture": "#texture"
+				},
+				"west": {
+					"uv": [
+						24,
+						27,
+						36,
+						30
+					],
+					"texture": "#texture"
+				},
+				"north": {
+					"uv": [
+						36,
+						27,
+						48,
+						30
+					],
+					"texture": "#texture"
+				}
+			}
+		},
+		{
+			"from": [
+				2,
+				8,
+				2
+			],
+			"to": [
+				14,
+				11,
+				14
+			],
+			"faces": {
+				"up": {
+					"uv": [
+						12,
+						30,
+						24,
+						42
+					],
+					"texture": "#texture"
+				},
+				"down": {
+					"uv": [
+						24,
+						30,
+						36,
+						42
+					],
+					"texture": "#texture"
+				},
+				"east": {
+					"uv": [
+						0,
+						42,
+						12,
+						45
+					],
+					"texture": "#texture"
+				},
+				"south": {
+					"uv": [
+						12,
+						42,
+						24,
+						45
+					],
+					"texture": "#texture"
+				},
+				"west": {
+					"uv": [
+						24,
+						42,
+						36,
+						45
+					],
+					"texture": "#texture"
+				},
+				"north": {
+					"uv": [
+						36,
+						42,
+						48,
+						45
+					],
+					"texture": "#texture"
+				}
+			}
+		}
+	]
 }

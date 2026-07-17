@@ -163,6 +163,17 @@ are structural and would need a compile-time fix. In rough order of risk:
 Your IDE's autocomplete/quick-fix will make any of these obvious once you're
 actually building against the real dependencies.
 
+### If an item looks wrong instead of failing to compile
+
+The Dorayaki and Summoning Bell item models (`assets/doraemon/models/item/*.json`)
+use `"parent": "minecraft:block/block"` with custom `"elements"` to get real
+3D geometry instead of a flat sprite — this is a long-standing, well-established
+modding technique, but it's a *resource* risk rather than a Java compile
+risk: if something about it is wrong for your version, the game will still
+launch, but the item would render as a missing-texture checkerboard or with
+odd proportions/rotation in hand rather than causing a build failure. If
+that happens, check the log for a model-loading warning naming the item.
+
 ### Built-in defensive fallbacks
 
 A few of the higher-risk calls above — specifically the live world-query
@@ -206,19 +217,37 @@ src/main/resources/
 
 ## About the art
 
-Entity and item textures are pixel art generated programmatically by a small
-Python script (no image-editing tools were available in the environment this
-was built in) rather than hand-painted or AI-generated. The model geometry
-itself is also hand-built: Minecraft's entity model system is fundamentally
-voxel/cuboid-based with no support for smooth curved surfaces, so the head
-and body are each three stacked, tapered cuboid tiers (narrow cap → wide
-middle → narrow cap) to approximate roundness, rather than a single box. The
-UV texture layout was computed by the same script that generated the
-texture, so the Java model and the PNG are guaranteed to line up — see the
-doc comment at the top of `client/DoraemonEntityModel.java` for details.
+All textures are pixel art generated programmatically by small Python
+scripts (no image-editing tools were available in the environment this was
+built in) rather than hand-painted or AI-generated. All the geometry —
+entity and items alike — is hand-built from cuboids, since Minecraft's
+model system (both entities and items) is fundamentally voxel/cuboid-based
+with no support for smooth curved surfaces:
+
+- **Doraemon himself**: head and body are each three stacked, tapered
+  cuboid tiers (narrow cap → wide middle → narrow cap) to approximate
+  roundness, rather than a single box.
+- **Dorayaki**: a real 3-layer stack (pancake / red-bean filling / pancake)
+  with actual depth, not a flat sprite.
+- **Doraemon's Bell**: a genuine tiered 3D bell — dome, wider body, flared
+  rim, and a small hanging clapper — instead of a flat icon.
+
+Both items use `"parent": "minecraft:block/block"` with custom `"elements"`
+(the standard technique for giving a standalone item real 3D geometry
+instead of the flat auto-extruded sprite that `item/generated` produces),
+so they show actual depth and per-face shading in hand, on the ground, and
+in the inventory — not just a 2D icon.
+
+In every case, the UV texture layout was computed by the same script that
+generated the texture (see `scratchpad` references in the doc comments), so
+the model/JSON and the PNG are guaranteed to line up rather than relying on
+hand-transcribed coordinates. See the doc comment at the top of
+`client/DoraemonEntityModel.java` for the entity's layout.
 
 Swap in your own `textures/entity/doraemon.png`, `textures/item/dorayaki.png`,
-`textures/item/summoning_bell.png`, or `assets/doraemon/icon.png` any time —
-the UV layout for the entity texture is documented in
-`client/DoraemonEntityModel.java` if you want to line up custom art with the
-existing model.
+`textures/item/summoning_bell.png`, or `assets/doraemon/icon.png` any time.
+If you replace an item texture, keep in mind its model references specific
+per-face UV rectangles (in `models/item/*.json`) rather than a single flat
+image, so a hand-drawn replacement texture would need updated `elements`/`uv`
+values too — swapping the entity texture is more drop-in since its faces are
+simpler.
