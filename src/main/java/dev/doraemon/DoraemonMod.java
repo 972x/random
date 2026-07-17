@@ -60,8 +60,16 @@ public class DoraemonMod implements ModInitializer {
 			return;
 		}
 		for (ServerPlayerEntity player : world.getPlayers()) {
+			// Mark greeted before attempting so a failure for one player can
+			// never spam retries every tick thereafter, and -- critically --
+			// so it can never affect the next player in this same loop (each
+			// attempt is isolated in its own try/catch below).
 			if (greetedPlayers.add(player.getUuid())) {
-				spawnWildDoraemonNear(world, player);
+				try {
+					spawnWildDoraemonNear(world, player);
+				} catch (Throwable t) {
+					LOGGER.error("Doraemon first-night spawn failed for {}", player.getName().getString(), t);
+				}
 			}
 		}
 	}
@@ -88,33 +96,40 @@ public class DoraemonMod implements ModInitializer {
 	}
 
 	private void handleChat(ServerPlayerEntity sender, String content) {
-		String trimmed = content.trim();
-		if (trimmed.isEmpty()) {
-			return;
-		}
+		try {
+			String trimmed = content.trim();
+			if (trimmed.isEmpty()) {
+				return;
+			}
 
-		String lower = trimmed.toLowerCase(Locale.ROOT);
-		boolean directedAtDoraemon = lower.startsWith("doraemon") || trimmed.endsWith("?");
-		if (!directedAtDoraemon) {
-			return;
-		}
+			String lower = trimmed.toLowerCase(Locale.ROOT);
+			boolean directedAtDoraemon = lower.startsWith("doraemon") || trimmed.endsWith("?");
+			if (!directedAtDoraemon) {
+				return;
+			}
 
-		Box searchBox = sender.getBoundingBox().expand(LISTEN_RADIUS);
-		List<DoraemonEntity> nearby = sender.getWorld().getEntitiesByClass(DoraemonEntity.class, searchBox,
-				doraemon -> doraemon.isTamed() && doraemon.isOwner(sender));
-		if (nearby.isEmpty()) {
-			return;
-		}
+			Box searchBox = sender.getBoundingBox().expand(LISTEN_RADIUS);
+			List<DoraemonEntity> nearby = sender.getWorld().getEntitiesByClass(DoraemonEntity.class, searchBox,
+					doraemon -> doraemon.isTamed() && doraemon.isOwner(sender));
+			if (nearby.isEmpty()) {
+				return;
+			}
 
-		String question = lower.startsWith("doraemon") ? trimmed.substring("doraemon".length()).trim() : trimmed;
-		question = question.replaceFirst("^[,:\\-\\s]+", "");
-		if (question.isEmpty()) {
-			return;
-		}
+			String question = lower.startsWith("doraemon") ? trimmed.substring("doraemon".length()).trim() : trimmed;
+			question = question.replaceFirst("^[,:\\-\\s]+", "");
+			if (question.isEmpty()) {
+				return;
+			}
 
-		String answer = DoraemonWorldQueries.tryAnswer(sender, question)
-				.orElseGet(() -> DoraemonKnowledgeBase.answer(question));
-		sender.sendMessage(Text.literal("[Doraemon] ").formatted(Formatting.AQUA)
-				.append(Text.literal(answer).formatted(Formatting.WHITE)), false);
+			String answer = DoraemonWorldQueries.tryAnswer(sender, question)
+					.orElseGet(() -> DoraemonKnowledgeBase.answer(question));
+			sender.sendMessage(Text.literal("[Doraemon] ").formatted(Formatting.AQUA)
+					.append(Text.literal(answer).formatted(Formatting.WHITE)), false);
+		} catch (Throwable t) {
+			// A chat listener throwing can be noisy for every message
+			// thereafter on some setups -- keep it contained and logged
+			// instead of letting it interfere with normal chat.
+			LOGGER.error("Doraemon chat handling failed", t);
+		}
 	}
 }

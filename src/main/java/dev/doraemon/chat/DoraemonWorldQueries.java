@@ -22,28 +22,40 @@ public final class DoraemonWorldQueries {
 
 	// locateStructure's radius is in chunks, not blocks.
 	private static final int STRUCTURE_SEARCH_RADIUS_CHUNKS = 100;
-	private static final int BLOCK_SEARCH_HORIZONTAL_RADIUS = 48;
+	// Kept modest so a chat question never causes a noticeable server hitch.
+	private static final int BLOCK_SEARCH_HORIZONTAL_RADIUS = 32;
 	private static final int BLOCK_SEARCH_VERTICAL_RADIUS = 16;
 
 	private DoraemonWorldQueries() {
 	}
 
+	/**
+	 * Never throws: this touches a few Minecraft/Fabric APIs that couldn't be
+	 * verified against a live build in the environment this mod was written
+	 * in (see README), so any failure here is caught and treated as "no
+	 * dynamic answer" -- the caller falls back to the static knowledge base
+	 * instead of the question going unanswered or crashing chat handling.
+	 */
 	public static Optional<String> tryAnswer(ServerPlayerEntity player, String question) {
-		String lower = question.toLowerCase(Locale.ROOT);
+		try {
+			String lower = question.toLowerCase(Locale.ROOT);
 
-		if (containsAny(lower, "village")) {
-			return Optional.of(locateVillage(player));
+			if (containsAny(lower, "village")) {
+				return Optional.of(locateVillage(player));
+			}
+			if (containsAny(lower, "sand", "beach", "desert")) {
+				return Optional.of(locateBlock(player, Blocks.SAND, "sand"));
+			}
+			if (containsAny(lower, "water", "ocean", "lake", "river")) {
+				return Optional.of(locateBlock(player, Blocks.WATER, "water"));
+			}
+			if (containsAny(lower, "lava")) {
+				return Optional.of(locateBlock(player, Blocks.LAVA, "lava"));
+			}
+			return Optional.empty();
+		} catch (Throwable t) {
+			return Optional.empty();
 		}
-		if (containsAny(lower, "sand", "beach", "desert")) {
-			return Optional.of(locateBlock(player, Blocks.SAND, "sand"));
-		}
-		if (containsAny(lower, "water", "ocean", "lake", "river")) {
-			return Optional.of(locateBlock(player, Blocks.WATER, "water"));
-		}
-		if (containsAny(lower, "lava")) {
-			return Optional.of(locateBlock(player, Blocks.LAVA, "lava"));
-		}
-		return Optional.empty();
 	}
 
 	private static boolean containsAny(String text, String... needles) {

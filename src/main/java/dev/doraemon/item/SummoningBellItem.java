@@ -1,5 +1,6 @@
 package dev.doraemon.item;
 
+import dev.doraemon.DoraemonMod;
 import dev.doraemon.entity.DoraemonEntity;
 import dev.doraemon.entity.ModEntities;
 import net.minecraft.entity.player.PlayerEntity;
@@ -36,35 +37,41 @@ public class SummoningBellItem extends Item {
 			return TypedActionResult.success(stack);
 		}
 
-		Box searchBox = user.getBoundingBox().expand(SEARCH_RADIUS);
-		List<DoraemonEntity> existing = world.getEntitiesByClass(DoraemonEntity.class, searchBox,
-				doraemon -> doraemon.isTamed() && doraemon.isOwner(user));
-		if (!existing.isEmpty()) {
-			user.sendMessage(Text.literal("Doraemon is already nearby!"), true);
+		try {
+			Box searchBox = user.getBoundingBox().expand(SEARCH_RADIUS);
+			List<DoraemonEntity> existing = world.getEntitiesByClass(DoraemonEntity.class, searchBox,
+					doraemon -> doraemon.isTamed() && doraemon.isOwner(user));
+			if (!existing.isEmpty()) {
+				user.sendMessage(Text.literal("Doraemon is already nearby!"), true);
+				return TypedActionResult.fail(stack);
+			}
+
+			ServerWorld serverWorld = (ServerWorld) world;
+			DoraemonEntity doraemon = ModEntities.DORAEMON.create(serverWorld);
+			if (doraemon == null) {
+				return TypedActionResult.fail(stack);
+			}
+
+			doraemon.refreshPositionAndAngles(
+					user.getX() + (user.getRandom().nextFloat() - 0.5) * 2.0,
+					user.getY(),
+					user.getZ() + (user.getRandom().nextFloat() - 0.5) * 2.0,
+					user.getYaw(), 0.0f);
+			doraemon.setOwner(user);
+			doraemon.setTamed(true);
+			doraemon.setSitting(false);
+			doraemon.setPersistent();
+			world.spawnEntity(doraemon);
+			world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_BELL_USE, SoundCategory.NEUTRAL, 1.0f, 1.2f);
+
+			if (!user.getAbilities().creativeMode) {
+				stack.decrement(1);
+			}
+			return TypedActionResult.success(stack);
+		} catch (Throwable t) {
+			DoraemonMod.LOGGER.error("Summoning Bell failed to summon Doraemon", t);
+			user.sendMessage(Text.literal("The bell rings, but nothing happens..."), true);
 			return TypedActionResult.fail(stack);
 		}
-
-		ServerWorld serverWorld = (ServerWorld) world;
-		DoraemonEntity doraemon = ModEntities.DORAEMON.create(serverWorld);
-		if (doraemon == null) {
-			return TypedActionResult.fail(stack);
-		}
-
-		doraemon.refreshPositionAndAngles(
-				user.getX() + (user.getRandom().nextFloat() - 0.5) * 2.0,
-				user.getY(),
-				user.getZ() + (user.getRandom().nextFloat() - 0.5) * 2.0,
-				user.getYaw(), 0.0f);
-		doraemon.setOwner(user);
-		doraemon.setTamed(true);
-		doraemon.setSitting(false);
-		doraemon.setPersistent();
-		world.spawnEntity(doraemon);
-		world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_BELL_USE, SoundCategory.NEUTRAL, 1.0f, 1.2f);
-
-		if (!user.getAbilities().creativeMode) {
-			stack.decrement(1);
-		}
-		return TypedActionResult.success(stack);
 	}
 }

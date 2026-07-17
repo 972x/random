@@ -30,12 +30,14 @@ public class DoraemonEntityModel extends SinglePartEntityModel<DoraemonEntity> {
 
 	private final ModelPart root;
 	private final ModelPart head;
+	private final ModelPart body;
 	private final ModelPart armLeft;
 	private final ModelPart armRight;
 
 	public DoraemonEntityModel(ModelPart root) {
 		this.root = root;
 		this.head = root.getChild("head");
+		this.body = root.getChild("body");
 		this.armLeft = root.getChild("arm_left");
 		this.armRight = root.getChild("arm_right");
 	}
@@ -50,32 +52,32 @@ public class DoraemonEntityModel extends SinglePartEntityModel<DoraemonEntity> {
 				ModelTransform.pivot(0.0f, 14.0f, 0.0f));
 		head.addChild("crown",
 				ModelPartBuilder.create().uv(0, 0).cuboid(-3.5f, -10.0f, -3.5f, 7, 1, 7),
-				ModelTransform.NONE);
+				ModelTransform.pivot(0.0f, 0.0f, 0.0f));
 		head.addChild("main_head",
 				ModelPartBuilder.create().uv(28, 0).cuboid(-5.0f, -9.0f, -5.0f, 10, 8, 10),
-				ModelTransform.NONE);
+				ModelTransform.pivot(0.0f, 0.0f, 0.0f));
 		head.addChild("chin",
 				ModelPartBuilder.create().uv(68, 0).cuboid(-3.5f, -1.0f, -3.5f, 7, 1, 7),
-				ModelTransform.NONE);
+				ModelTransform.pivot(0.0f, 0.0f, 0.0f));
 
 		// Body: another empty pivot group holding its own tapered tiers plus feet.
 		ModelPartData body = rootData.addChild("body", ModelPartBuilder.create(),
 				ModelTransform.pivot(0.0f, 14.0f, 0.0f));
 		body.addChild("shoulders",
 				ModelPartBuilder.create().uv(96, 0).cuboid(-3.5f, 0.0f, -2.5f, 7, 2, 5),
-				ModelTransform.NONE);
+				ModelTransform.pivot(0.0f, 0.0f, 0.0f));
 		body.addChild("belly",
 				ModelPartBuilder.create().uv(0, 18).cuboid(-4.5f, 2.0f, -3.0f, 9, 7, 6),
-				ModelTransform.NONE);
+				ModelTransform.pivot(0.0f, 0.0f, 0.0f));
 		body.addChild("base",
 				ModelPartBuilder.create().uv(30, 18).cuboid(-3.5f, 9.0f, -2.5f, 7, 2, 5),
-				ModelTransform.NONE);
+				ModelTransform.pivot(0.0f, 0.0f, 0.0f));
 		body.addChild("foot_left",
 				ModelPartBuilder.create().uv(82, 18).cuboid(-3.0f, 11.0f, -2.0f, 3, 2, 4),
-				ModelTransform.NONE);
+				ModelTransform.pivot(0.0f, 0.0f, 0.0f));
 		body.addChild("foot_right",
 				ModelPartBuilder.create().uv(82, 18).mirrored().cuboid(0.0f, 11.0f, -2.0f, 3, 2, 4),
-				ModelTransform.NONE);
+				ModelTransform.pivot(0.0f, 0.0f, 0.0f));
 
 		// Arms, each with a flat round-ish hand nested at the tip so it swings
 		// along with the arm automatically.
@@ -109,12 +111,22 @@ public class DoraemonEntityModel extends SinglePartEntityModel<DoraemonEntity> {
 		return this.root;
 	}
 
+	private static final float DEGREES_TO_RADIANS = (float) (Math.PI / 180.0);
+	private static final float BASE_HEAD_PIVOT_Y = 14.0f;
+	private static final float BASE_BODY_PIVOT_Y = 14.0f;
+
 	@Override
 	public void setAngles(DoraemonEntity entity, float limbAngle, float limbDistance, float animationProgress,
 			float headYaw, float headPitch) {
-		this.head.yaw = headYaw * MathHelper.RADIANS_PER_DEGREE;
-		this.head.pitch = headPitch * MathHelper.RADIANS_PER_DEGREE;
+		this.head.yaw = headYaw * DEGREES_TO_RADIANS;
+		this.head.pitch = headPitch * DEGREES_TO_RADIANS;
 		this.armLeft.pitch = MathHelper.cos(limbAngle * 0.6662f) * 0.6f * limbDistance;
 		this.armRight.pitch = MathHelper.cos(limbAngle * 0.6662f + (float) Math.PI) * 0.6f * limbDistance;
+
+		// A gentle idle bob (independent of walking) so he reads as alive
+		// rather than a static prop even when standing still.
+		float bob = MathHelper.sin(animationProgress * 0.06f) * 0.6f;
+		this.head.pivotY = BASE_HEAD_PIVOT_Y + bob;
+		this.body.pivotY = BASE_BODY_PIVOT_Y + bob * 0.5f;
 	}
 }
