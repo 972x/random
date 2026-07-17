@@ -9,6 +9,10 @@ Not affiliated with, endorsed by, or sponsored by the Doraemon franchise
 (Fujiko F. Fujio / Shogakukan / TV Asahi / ADK). Fan content, for personal
 use — please don't redistribute or monetize it.
 
+This repository is public specifically so GitHub Actions can build it for
+free (private repos need paid/quota-limited minutes) — see "Getting a
+compiled mod jar" below.
+
 ## Features
 
 - **He finds you.** Once your first in-game night has passed, a wild,
