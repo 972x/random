@@ -11,7 +11,10 @@ use — please don't redistribute or monetize it.
 
 This repository is public specifically so GitHub Actions can build it for
 free (private repos need paid/quota-limited minutes) — see "Getting a
-compiled mod jar" below.
+compiled mod jar" below. Also make sure repo Settings → Actions → General →
+"Actions permissions" is set to "Allow all actions and reusable workflows" —
+anything more restrictive blocks the actions this workflow depends on
+(`actions/checkout`, `actions/setup-java`, `actions/upload-artifact`).
 
 ## Features
 
